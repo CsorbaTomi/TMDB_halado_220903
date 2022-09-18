@@ -1,4 +1,5 @@
 import tmdbsimple as tmdb
+from datetime import *
 tmdb.API_KEY = '83cbec0139273280b9a3f8ebc9e35ca9'
 tmdb.REQUESTS_TIMEOUT = 5
 
@@ -9,4 +10,5 @@ for movie_data in popular_movies:
     release_date = movie_data.get("release_date")
     vote_average = int(movie_data.get("vote_average") * 10)
     poster_path = "https://image.tmdb.org/t/p/w300" + movie_data.get("poster_path")
-    print(title, release_date, vote_average, poster_path)
+    # print(title, release_date, vote_average, poster_path)
+    print(datetime.strptime(release_date, "%Y%b%d"))
