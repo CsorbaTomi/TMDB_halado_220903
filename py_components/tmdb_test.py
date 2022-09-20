@@ -7,8 +7,9 @@ movies = tmdb.Movies()
 popular_movies = movies.popular(page=1)["results"]
 for movie_data in popular_movies:
     title = movie_data.get("title")
-    release_date = movie_data.get("release_date")
+    release_date = datetime.strptime(movie_data.get("release_date"), "%Y-%m-%d").strftime("%Y.%b.%d.")
     vote_average = int(movie_data.get("vote_average") * 10)
     poster_path = "https://image.tmdb.org/t/p/w300" + movie_data.get("poster_path")
-    # print(title, release_date, vote_average, poster_path)
-    print(datetime.strptime(release_date, "%Y%b%d"))
+    print(title, release_date, vote_average, poster_path)
+    print(movie_data)
+    # print((datetime.strptime(release_date, "%Y-%m-%d").strftime("%Y.%b.%d.")))

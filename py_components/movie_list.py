@@ -1,5 +1,6 @@
 from PySide2.QtCore import QAbstractListModel, Qt, QModelIndex
 import tmdbsimple as tmdb
+from datetime import *
 tmdb.API_KEY = '83cbec0139273280b9a3f8ebc9e35ca9'
 tmdb.REQUESTS_TIMEOUT = 5
 
@@ -21,9 +22,11 @@ class MovieList(QAbstractListModel):
         for movie_data in popular_movies:
             self._inser_movie({
                 "title": movie_data.get("title"),
-                "release_date": movie_data.get("release_date"),
+                "release_date": datetime.strptime(movie_data.get("release_date"), "%Y-%m-%d").strftime("%Y.%b.%d."),
                 "vote_average": int(movie_data.get("vote_average") * 10),
+                "poster_path" : movie_data.get("poster_path")
             })
+            
 
     def _reset(self):
         self.beginResetModel()
@@ -48,3 +51,6 @@ class MovieList(QAbstractListModel):
         row = index.row()
         if role == MovieList.DataRole:
             return self._movies[row]
+
+
+

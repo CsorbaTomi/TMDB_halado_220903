@@ -2,6 +2,7 @@ import QtQuick 2.15
 import QtQuick.Layouts 1.15
 
 
+
 CustomRectangle{
     id: root
 
@@ -23,7 +24,7 @@ CustomRectangle{
 
             Image{
                 id: poster
-                source: Resources.get("poster.jpg")
+                source: "https://image.tmdb.org/t/p/w300" +  movie_poster
                 sourceSize: Qt.size(poster_container.width, poster_container.height)
             }
 
