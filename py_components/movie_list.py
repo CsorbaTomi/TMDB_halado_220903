@@ -1,32 +1,32 @@
-from PySide2.QtCore import QAbstractListModel, Qt, QModelIndex
+from PySide2.QtCore import QAbstractListModel, Qt, QModelIndex, QObject, Signal, QRunnable, QThreadPool
 import tmdbsimple as tmdb
 from datetime import *
+from py_components.resources import get_poster
 tmdb.API_KEY = '83cbec0139273280b9a3f8ebc9e35ca9'
 tmdb.REQUESTS_TIMEOUT = 5
 
 
 class MovieList(QAbstractListModel):
+
     DataRole = Qt.UserRole
 
     def __init__(self):
         super().__init__()
 
+        self.job_pool = QThreadPool()
+        self.job_pool.setMaxThreadCount(1)
+        self.movie_list_worker = MovieListWorker()
+
+
         self._movies = []
-        self.tmdb_movies = tmdb.Movies()
+        
         self._fetch_movies()
 
     def _fetch_movies(self):
         self._reset()
-        
-        popular_movies = self.tmdb_movies.popular(page=1)["results"]
-        for movie_data in popular_movies:
-            self._inser_movie({
-                "title": movie_data.get("title"),
-                "release_date": datetime.strptime(movie_data.get("release_date"), "%Y-%m-%d").strftime("%Y.%b.%d."),
-                "vote_average": int(movie_data.get("vote_average") * 10),
-                "poster_path" : movie_data.get("poster_path")
-            })
-            
+        self.movie_list_worker.signals.movie_data_downloaded.connect(self._inser_movie)
+        self.job_pool.start(self.movie_list_worker)
+
 
     def _reset(self):
         self.beginResetModel()
@@ -54,3 +54,26 @@ class MovieList(QAbstractListModel):
 
 
 
+class WorkerSignals(QObject):
+    movie_data_downloaded = Signal(dict)
+
+    def __init__(self):
+        super().__init__()
+
+class MovieListWorker(QRunnable):
+    def __init__(self):
+        super().__init__()
+        self.signals = WorkerSignals()
+
+        self.tmdb_movies = tmdb.Movies()
+    
+    def run(self):
+        popular_movies = self.tmdb_movies.popular(page=1)["results"]
+        for movie_data in popular_movies:
+            movie_data = {
+                "title": movie_data.get("title"),
+                "release_date": datetime.strptime(movie_data.get("release_date"), "%Y-%m-%d").strftime("%Y.%b.%d."),
+                "vote_average": int(movie_data.get("vote_average") * 10),
+                "poster" : get_poster(movie_data.get("poster_path"))
+            }
+            self.signals.movie_data_downloaded.emit(movie_data)
