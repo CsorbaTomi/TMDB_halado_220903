@@ -24,7 +24,7 @@ CustomRectangle{
 
             Image{
                 id: poster
-                source: "https://image.tmdb.org/t/p/w300" +  movie_poster
+                source: Resources.get("poster.jpg")
                 sourceSize: Qt.size(poster_container.width, poster_container.height)
             }
 
