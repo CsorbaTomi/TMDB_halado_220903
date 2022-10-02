@@ -10,7 +10,11 @@ Item{
         spacing: 20
 
         // Search by title
-        IconTextField{id: search_by_title; placeholder_text: "Search by title"; icon: Resources.get("search.svg")}
+        IconTextField{id: search_by_title
+                     placeholder_text: "Search by title"
+                     icon: Resources.get("search.svg")
+                     onChanged: print("search", field_text)
+                     }
 
         // Sorting
         CustomRectangle{
