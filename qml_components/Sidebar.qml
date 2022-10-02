@@ -31,19 +31,11 @@ Item{
                 }
 
                 ComboBox{
-                    model: [
-                        "Popularity Descending", 
-                        "Popularity Ascending",
-                        "Rating Descending",
-                        "Rating Ascending",
-                        "Release Date Descending",
-                        "Release Date Ascending",
-                        "Title (A-Z)",
-                        "Title (Z-A)"
-                    ]
+                    model: MovieListProxy.sorting_options
                     Layout.fillWidth: true
 
-                    onActivated: print("Sort by:", currentText, currentIndex)
+                    // onActivated: print("Sort by:", currentText, currentIndex)
+                    onActivated: MovieListProxy.current_sorting = currentText
                 }
             }
         }
@@ -65,14 +57,15 @@ Item{
 
                 Repeater{
                     model: MovieList.genre_list
-                    TextButton{text: modelData
-                            default_color: "gray"
-                            highlight_color: "black"
-                            font_size:14
-                            active_color:"black"
-                            state: MovieListProxy.current_genre === modelData? "active" : ""
-                            onClicked: MovieListProxy.current_genre = modelData
-                      }
+                    TextButton{
+                        text: modelData; 
+                        default_color: "gray"; 
+                        highlight_color: "black"
+                        font_size: 14
+                        active_color: "black"
+                        state: MovieListProxy.current_genre === modelData? "active" : ""
+                        onClicked: MovieListProxy.current_genre = modelData
+                    }
                 }
             }
         }
