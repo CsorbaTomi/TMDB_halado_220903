@@ -1,11 +1,12 @@
-from PySide2.QtCore import QAbstractListModel, Qt, QModelIndex, QObject, Signal, QRunnable, QThreadPool, Property
+from PySide2.QtCore import QAbstractListModel, Qt, QModelIndex, \
+    QObject, Signal, QRunnable, QThreadPool, Property, QSortFilterProxyModel, Slot
 import tmdbsimple as tmdb
-from datetime import *
 from py_components.resources import get_poster
+import time
+from datetime import datetime
+
 tmdb.API_KEY = '83cbec0139273280b9a3f8ebc9e35ca9'
 tmdb.REQUESTS_TIMEOUT = 5
-
-
 
 
 class MovieList(QAbstractListModel):
@@ -21,6 +22,10 @@ class MovieList(QAbstractListModel):
 
         self._movies = []
         self._fetch_movies()
+
+    @property
+    def movies(self):
+        return self._movies
 
     def _fetch_movies(self):
         self._reset()
@@ -69,6 +74,19 @@ class MovieList(QAbstractListModel):
     download_max_count = Property(int, _get_download_max_count, notify=download_progress_changed)
     download_current_value = Property(int, _get_download_current_value, notify=download_progress_changed)
 
+class MovieListProxy(QSortFilterProxyModel):
+    def __init__(self):
+        super().__init__()
+        self._filter = ""
+    
+    @Slot(str)
+    def set_filter(self, search_string):
+        self._filter = search_string
+        self.invalidateFilter()
+    
+    def filterAcceptsRow(self, source_row, source_parent):
+        movie_data = self.sourceModel().movies[source_row]
+        return self._filter.lower() in movie_data["title"].lower()
 
 class WorkerSignals(QObject):
     movie_data_downloaded = Signal(dict)
@@ -96,12 +114,12 @@ class MovieListWorker(QRunnable):
         popular_movies = self.tmdb_movies.popular(page=1)["results"]
         self.max_count = len(popular_movies)
         for movie_data in popular_movies:
-            date_object = datetime.strptime(movie_data.get("release_date"), "%Y-%m-%d")
-            
+            datetime_obj = datetime.strptime(movie_data.get("release_date"), "%Y-%m-%d")
+
             movie_data = {
                 "title": movie_data.get("title"),
-                "release_date": date_object.strftime("%Y.%b.%d."),
-                "date": date_object,
+                "release_date": datetime_obj.strftime("%Y %b. %d"),
+                "date": datetime_obj,
                 "vote_average": int(movie_data.get("vote_average") * 10),
                 "poster": get_poster(movie_data.get("poster_path"))
             }
