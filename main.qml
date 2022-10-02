@@ -15,7 +15,40 @@ ApplicationWindow{
     Material.accent: Material.LightBlue
 
     ColumnLayout{
+        id: app_layout
         anchors.fill: parent
+        state: "movies"
+
+        states: [
+            State{
+                name: "movies"
+                PropertyChanges{
+                    target: movies_list
+                    visible: true
+                }
+            },
+            State{
+                name: "tvshows"
+                PropertyChanges{
+                    target: tvshows_list
+                    visible: true
+                }
+            },
+            State{
+                name: "peoples"
+                PropertyChanges{
+                    target: peoples_list
+                    visible: true
+                }
+            },
+            State{
+                name: "more"
+                PropertyChanges{
+                    target: more_list
+                    visible: true
+                }
+            }
+        ]
 
         Navbar{
             Layout.fillWidth: true
@@ -36,10 +69,10 @@ ApplicationWindow{
                 Layout.fillWidth: true
             }
 
-            MovieListView{
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-            }
+            MovieListView{id: movies_list; Layout.fillWidth: true;Layout.fillHeight: true; visible: false}
+            TVShowsView{id: tvshows_list;Layout.fillWidth: true;Layout.fillHeight: true; visible: false}
+            PeoplesView{id: peoples_list;Layout.fillWidth: true;Layout.fillHeight: true; visible: false}
+            MoreView{id: more_list;Layout.fillWidth: true;Layout.fillHeight: true; visible: false}
 
             }
 
